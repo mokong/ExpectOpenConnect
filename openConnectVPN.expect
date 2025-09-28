@@ -1,0 +1,18 @@
+#!/usr/bin/expect
+set SUDO_PASSWORD "YourSudoPassword"
+set USERNAME "YourUsername"
+set PASSWORD "YourPassword"
+set TOTP_SECRET "YourTOTPSecret"
+set VPN_SERVER "YourVPNServer"
+set FINGERPRINT "pin-sha256:YourFingerprint"
+set TOTP_CODE [exec oathtool --totp -b $TOTP_SECRET]
+set FULL_PASSWORD "$PASSWORD$TOTP_CODE"
+
+puts "Generated Password: $FULL_PASSWORD"
+
+spawn sudo openconnect --protocol=anyconnect $VPN_SERVER --user=$USERNAME --servercert $FINGERPRINT
+expect "Password:" 
+send "$SUDO_PASSWORD\r" 
+expect "Password:"
+send "$FULL_PASSWORD\r"
+interact
